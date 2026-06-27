@@ -1,10 +1,8 @@
 #include "huffman.h"
 #include <fstream>
 #include <iostream>
-#include <queue>
-#include <vector>
 
-// Phase 0: Read the file and count character frequencies
+// --- PHASE 0: Frequency Map ---
 std::unordered_map<char, int> buildFrequencyMap(const std::string& filePath) {
     std::unordered_map<char, int> freqMap;
     std::ifstream inFile(filePath, std::ios::binary);
@@ -23,27 +21,44 @@ std::unordered_map<char, int> buildFrequencyMap(const std::string& filePath) {
     return freqMap;
 }
 
-// Phase 1: Build the Huffman Tree using a Min-Heap
+// --- PHASE 1: Build Huffman Tree ---
 HuffmanNode* buildHuffmanTree(const std::unordered_map<char, int>& freqMap) {
-    // Creating a min-heap using our custom comparator from huffman.h
     std::priority_queue<HuffmanNode*, std::vector<HuffmanNode*>, CompareNodes> minHeap;
 
-    // Step A: Create a leaf node for each character and push to heap
     for (const auto& pair : freqMap) {
         minHeap.push(new HuffmanNode(pair.first, pair.second));
     }
 
-    // Step B: Combine nodes until only the root remains
     while (minHeap.size() > 1) {
         HuffmanNode* left = minHeap.top(); minHeap.pop();
         HuffmanNode* right = minHeap.top(); minHeap.pop();
 
-        // Create a new parent node with the sum of frequencies
         HuffmanNode* parent = new HuffmanNode(left->freq + right->freq, left, right);
-        
         minHeap.push(parent);
     }
 
-    // The last remaining node is the root of our Huffman Tree
     return minHeap.top();
+}
+
+// --- PHASE 2: Generate Encoding Map ---
+// Recursive Helper Function (DFS logic)
+void generateCodesHelper(HuffmanNode* root, std::string path, std::unordered_map<char, std::string>& huffmanCodes) {
+    if (!root) return;
+
+    // Agar leaf node hai (no left, no right), toh map me save kar lo
+    if (!root->left && !root->right) {
+        huffmanCodes[root->ch] = path;
+        return;
+    }
+
+    // Traverse left (add '0') and right (add '1')
+    generateCodesHelper(root->left, path + "0", huffmanCodes);
+    generateCodesHelper(root->right, path + "1", huffmanCodes);
+}
+
+// Ye function bahar se call hoga aur pura map banakar return karega
+std::unordered_map<char, std::string> generateHuffmanCodes(HuffmanNode* root) {
+    std::unordered_map<char, std::string> huffmanCodes;
+    generateCodesHelper(root, "", huffmanCodes);
+    return huffmanCodes;
 }

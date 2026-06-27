@@ -3,6 +3,8 @@
 
 #include <unordered_map>
 #include <string>
+#include <queue>
+#include <vector>
 
 // The building block of our Huffman Tree
 struct HuffmanNode {
@@ -20,19 +22,16 @@ struct HuffmanNode {
         : ch('\0'), freq(frequency), left(l), right(r) {}
 };
 
-// Function declarations we will implement soon
-std::unordered_map<char, int> buildFrequencyMap(const std::string& filePath);
-#include <queue>
-#include <vector>
-
-// Custom comparator: Jiski frequency kam hogi, uski priority zyada hogi (Min-Heap)
+// Custom comparator for Priority Queue (Min-Heap)
 struct CompareNodes {
     bool operator()(HuffmanNode* const& n1, HuffmanNode* const& n2) {
         return n1->freq > n2->freq;
     }
 };
 
-// Phase 1 Function Declaration
+// Function declarations for all 3 phases
+std::unordered_map<char, int> buildFrequencyMap(const std::string& filePath);
 HuffmanNode* buildHuffmanTree(const std::unordered_map<char, int>& freqMap);
+std::unordered_map<char, std::string> generateHuffmanCodes(HuffmanNode* root);
 
 #endif // HUFFMAN_H
