@@ -29,9 +29,11 @@ struct CompareNodes {
     }
 };
 
-// Function declarations for all 3 phases
+// Function declarations for all Phases
 std::unordered_map<char, int> buildFrequencyMap(const std::string& filePath);
 HuffmanNode* buildHuffmanTree(const std::unordered_map<char, int>& freqMap);
 std::unordered_map<char, std::string> generateHuffmanCodes(HuffmanNode* root);
+void compressFile(const std::string& inputPath, const std::string& outputPath, std::unordered_map<char, std::string>& huffmanCodes);
+void decompressFile(const std::string& inputPath, const std::string& outputPath, HuffmanNode* root, int totalChars);
 
 #endif // HUFFMAN_H

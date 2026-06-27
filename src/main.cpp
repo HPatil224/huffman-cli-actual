@@ -2,36 +2,43 @@
 #include "huffman.h"
 
 int main(int argc, char* argv[]) {
-    // Check if the file path is provided in terminal
-    if (argc < 2) {
-        std::cout << "Usage: " << argv[0] << " <input_file_path>" << std::endl;
+    // Ab hume 3 files chahiye (Input, Compressed Output, Restored Output)
+    if (argc < 4) {
+        std::cout << "Usage: " << argv[0] << " <input.txt> <compressed.huf> <restored.txt>" << std::endl;
         return 1;
     }
 
-    std::string filePath = argv[1];
+    std::string inputPath = argv[1];
+    std::string compressedPath = argv[2];
+    std::string restoredPath = argv[3];
     
-    // Phase 0: Get Character Frequencies
-    std::unordered_map<char, int> freqMap = buildFrequencyMap(filePath);
-    if (freqMap.empty()) {
-        std::cout << "File is empty or could not be processed." << std::endl;
-        return 1;
+    // Phase 0
+    std::cout << "\n[1] Reading file..." << std::endl;
+    std::unordered_map<char, int> freqMap = buildFrequencyMap(inputPath);
+    if (freqMap.empty()) return 1;
+
+    // Calculate total characters for decompression logic
+    int totalChars = 0;
+    for (const auto& pair : freqMap) {
+        totalChars += pair.second;
     }
 
-    // Phase 1: Build the Binary Tree
-    std::cout << "Building Huffman Tree..." << std::endl;
+    // Phase 1
+    std::cout << "[2] Building Huffman Tree..." << std::endl;
     HuffmanNode* root = buildHuffmanTree(freqMap);
 
-    // Phase 2: Generate the Encoding Table Map
-    std::cout << "Generating Encoding Map...\n" << std::endl;
+    // Phase 2
+    std::cout << "[3] Generating Encoding Map..." << std::endl;
     std::unordered_map<char, std::string> huffmanCodes = generateHuffmanCodes(root);
 
-    // Verify Phase 2: Print the map contents
-    std::cout << "--- Stored Encoding Table ---" << std::endl;
-    for (const auto& pair : huffmanCodes) {
-        if (pair.first == '\n') std::cout << "\\n : " << pair.second << std::endl;
-        else if (pair.first == ' ') std::cout << "' ' : " << pair.second << std::endl;
-        else std::cout << pair.first << "   : " << pair.second << std::endl;
-    }
+    // Phase 3
+    std::cout << "[4] Compressing file and packing bits..." << std::endl;
+    compressFile(inputPath, compressedPath, huffmanCodes);
 
+    // Phase 4
+    std::cout << "[5] Decompressing file back to original..." << std::endl;
+    decompressFile(compressedPath, restoredPath, root, totalChars);
+
+    std::cout << "\n--- ALL PHASES COMPLETE! ---" << std::endl;
     return 0;
 }
